@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+@import "@nuxt/ui";
+
+@theme {
+  --color-primary: #695CCD;
+  --color-secondary: #1F1283;
+  --color-background: #f4f2ff;
+  --color-smoke: #717171;
+}
+
+body {
+  font-family: 'Encode Sans', sans-serif;
+}
