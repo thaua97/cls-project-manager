@@ -12,7 +12,7 @@ export const projectActions = {
 		this.error = null
 
 		try {
-			this.projects = []
+			return
 		} catch (error) {
 			this.error = 'Erro ao carregar projetos'
 			console.error('Error fetching projects:', error)

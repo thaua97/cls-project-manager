@@ -18,6 +18,9 @@ export default defineNuxtConfig({
 			pathPrefix: false
 		}
 	],
+	ui: {
+		colorMode: false
+	},
 	app: {
 		head: {
 			link: [

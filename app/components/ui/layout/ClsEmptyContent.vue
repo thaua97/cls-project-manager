@@ -1,17 +1,17 @@
 <template>
   <div>
-    <section class="flex flex-col items-center justify-center gap-8">
+    <header class="flex flex-col items-center justify-center gap-8">
       <div class="flex flex-col items-center justify-center gap-6">
-        <h2 class="text-2xl font-semibold text-secondary">{{ title }}</h2>
+        <h2 class="text-2xl font-semibold text-primary-800">{{ title }}</h2>
         <p class="text-smoke font-regular font-size-[16px]">
           {{ description }}
         </p>
       </div>
-      <Button>
+      <ClsButton variant="darken" @click="createProject">
         <Icon v-if="actionIcon" :name="actionIcon" size="32" />
         {{ buttonText }}
-      </Button>
-    </section>
+      </ClsButton>
+    </header>
   </div>
 </template>
 
@@ -22,4 +22,8 @@ defineProps<{
   buttonText: string;
   actionIcon?: string;
 }>();
+
+const createProject = () => {
+  navigateTo("/project/new");
+};
 </script>

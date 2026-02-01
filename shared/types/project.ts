@@ -1,7 +1,8 @@
 export interface Project {
 	id: string
 	name: string
-	description: string
+	client: string
+	background?: string
 	startDate: string
 	endDate: string
 	status: ProjectStatus
@@ -27,7 +28,8 @@ export interface ProjectFilters {
 
 export interface CreateProjectInput {
 	name: string
-	description: string
+	client: string
+	background?: string
 	startDate: string
 	endDate: string
 	status: ProjectStatus

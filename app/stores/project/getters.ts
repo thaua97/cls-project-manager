@@ -6,20 +6,20 @@ export const projectGetters = {
 		const sorted = [...projects]
 
 		switch (sortBy) {
-			case 'alphabetical':
-				return sorted.sort((a, b) => a.name.localeCompare(b.name))
-			case 'startDate':
-				return sorted.sort((a, b) => {
-					return new Date(b.startDate).getTime() -
-						new Date(a.startDate).getTime()
-				})
-			case 'endDate':
-				return sorted.sort((a, b) => {
-					return new Date(a.endDate).getTime() -
-						new Date(b.endDate).getTime()
-				})
-			default:
-				return sorted
+		case 'alphabetical':
+			return sorted.sort((a, b) => a.name.localeCompare(b.name))
+		case 'startDate':
+			return sorted.sort((a, b) => {
+				return new Date(b.startDate).getTime() -
+							new Date(a.startDate).getTime()
+			})
+		case 'endDate':
+			return sorted.sort((a, b) => {
+				return new Date(a.endDate).getTime() -
+							new Date(b.endDate).getTime()
+			})
+		default:
+			return sorted
 		}
 	},
 
@@ -34,7 +34,7 @@ export const projectGetters = {
 			const searchLower = state.filters.search.toLowerCase()
 			filtered = filtered.filter(project =>
 				project.name.toLowerCase().includes(searchLower) ||
-				project.description.toLowerCase().includes(searchLower)
+				project.client.toLowerCase().includes(searchLower)
 			)
 		}
 
