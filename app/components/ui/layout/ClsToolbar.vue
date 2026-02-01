@@ -5,15 +5,18 @@
       <span class="text-smoke font-normal text-[17px]">({{ total }})</span>
     </h1>
     <div class="flex justify-between items-center gap-4">
-      <div><USwitch default-value color="warning"></USwitch></div>
+      <div class="flex items-center gap-2">
+        <USwitch v-model="modelShowFavoritesOnly" color="warning"></USwitch>
+        <p class="text-smoke font-normal font-sm">Apenas Favoritos</p>
+      </div>
       <div>
         <USelect
-          v-model="order"
+          v-model="modelSortBy"
           :items="ordersType"
           class="w-[200px] bg-white text-primary-800"
         ></USelect>
       </div>
-      <ClsButton variant="primary" size="sm" @click="createProject">
+      <ClsButton variant="primary" size="sm" @click="onCreate">
         <Icon name="mdi-light:plus-circle" size="24" />
         Novo Projeto
       </ClsButton>
@@ -22,16 +25,35 @@
 </template>
 
 <script setup lang="ts">
-const { total } = defineProps<{ total: number }>();
+const props = defineProps<{
+  total: number;
+  sortBy: SortOption;
+  showFavoritesOnly: boolean;
+}>();
 
-const ordersType = ref([
+const emit = defineEmits<{
+  (e: "update:sortBy", value: SortOption): void;
+  (e: "update:showFavoritesOnly", value: boolean): void;
+  (e: "create"): void;
+}>();
+
+const ordersType = [
   { label: "Alfabética", value: "alphabetical" },
   { label: "Data de Início", value: "startDate" },
   { label: "Data de Fim", value: "endDate" },
-]);
-const order = ref("alphabetical");
+];
 
-const createProject = () => {
-  navigateTo("/project/new");
+const modelSortBy = computed({
+  get: () => props.sortBy,
+  set: (value) => emit("update:sortBy", value),
+});
+
+const modelShowFavoritesOnly = computed({
+  get: () => props.showFavoritesOnly,
+  set: (value) => emit("update:showFavoritesOnly", value),
+});
+
+const onCreate = () => {
+  emit("create");
 };
 </script>

@@ -14,12 +14,7 @@
           />
           <Icon v-else name="mdi-light:star" size="24" class="text-white" />
         </div>
-        <Icon
-          name="line-md:trash"
-          class="bg-red-500 hover:bg-red-600 transition-all duration-200 ease-in-out rounded-full p-2 text-white"
-          size="24"
-          @click="handleRemove"
-        />
+        <ClsProjectCardActions :id="project.id" @remove="handleRemove" />
       </div>
     </figure>
     <article class="flex flex-col gap-4 p-6">

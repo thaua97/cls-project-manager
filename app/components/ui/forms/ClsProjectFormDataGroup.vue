@@ -3,12 +3,12 @@
     <UFormField class="w-full" label="Data de início">
       <UInputDate
         class="w-full"
-        ref="inputDate"
+        ref="inputStartDate"
         v-model="modelInitialDate"
         format="DD-MM-YYYY"
       >
         <template #trailing>
-          <UPopover :reference="inputDate?.inputsRef[3]?.$el">
+          <UPopover :reference="inputStartDate?.inputsRef[3]?.$el">
             <UButton
               color="neutral"
               variant="link"
@@ -33,12 +33,12 @@
     <UFormField class="w-full" label="Data de término">
       <UInputDate
         class="w-full"
-        ref="inputDate"
+        ref="inputEndDate"
         v-model="modelEndDate"
         format="DD-MM-YYYY"
       >
         <template #trailing>
-          <UPopover :reference="inputDate?.inputsRef[3]?.$el">
+          <UPopover :reference="inputEndDate?.inputsRef[3]?.$el">
             <UButton
               color="neutral"
               variant="link"
@@ -63,10 +63,51 @@
 </template>
 
 <script lang="ts" setup>
-import { CalendarDate } from "@internationalized/date";
+const props = defineProps<{
+  startDate?: string;
+  endDate?: string;
+}>();
 
-const inputDate = useTemplateRef("inputDate");
+const emit = defineEmits<{
+  (e: "update:startDate", value: string): void;
+  (e: "update:endDate", value: string): void;
+}>();
 
-const modelInitialDate = shallowRef(new CalendarDate(2022, 1, 10));
-const modelEndDate = shallowRef(new CalendarDate(2022, 1, 10));
+const inputStartDate = useTemplateRef("inputStartDate");
+const inputEndDate = useTemplateRef("inputEndDate");
+
+const { parseCalendarDate } = useCalendarDate();
+
+const modelInitialDate = shallowRef(parseCalendarDate(props.startDate));
+const modelEndDate = shallowRef(parseCalendarDate(props.endDate));
+
+watch(
+  () => props.startDate,
+  (value) => {
+    modelInitialDate.value = parseCalendarDate(value);
+  },
+);
+
+watch(
+  () => props.endDate,
+  (value) => {
+    modelEndDate.value = parseCalendarDate(value);
+  },
+);
+
+watch(
+  modelInitialDate,
+  (value) => {
+    emit("update:startDate", value.toString());
+  },
+  { deep: true },
+);
+
+watch(
+  modelEndDate,
+  (value) => {
+    emit("update:endDate", value.toString());
+  },
+  { deep: true },
+);
 </script>
