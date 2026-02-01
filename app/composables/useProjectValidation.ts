@@ -1,62 +1,90 @@
-import type { CreateProjectInput } from '../../shared/types/project'
+import { z } from 'zod'
 
-interface ValidationErrors {
-	name?: string
-	description?: string
-	startDate?: string
-	endDate?: string
-	status?: string
-}
+import { ProjectStatus, type CreateProjectInput } from '#shared/types/project'
+
+export type ValidationErrors = Partial<Record<keyof CreateProjectInput, string>>
 
 export const useProjectValidation = () => {
+	const projectSchema = z
+		.object({
+			name: z
+				.string()
+				.optional()
+				.refine((v) => !!v && v.trim().length > 0, {
+					message: 'Nome do projeto é obrigatório'
+				})
+				.refine((v) => !!v && v.trim().length >= 3, {
+					message: 'Nome deve ter no mínimo 3 caracteres'
+				})
+				.refine((v) => !!v && v.trim().length <= 100, {
+					message: 'Nome deve ter no máximo 100 caracteres'
+				}),
+			client: z
+				.string()
+				.optional()
+				.refine((v) => !!v && v.trim().length > 0, {
+					message: 'Cliente é obrigatório'
+				})
+				.refine((v) => !!v && v.trim().length >= 2, {
+					message: 'Cliente deve ter no mínimo 2 caracteres'
+				})
+				.refine((v) => !!v && v.trim().length <= 100, {
+					message: 'Cliente deve ter no máximo 100 caracteres'
+				}),
+			startDate: z
+				.string()
+				.optional()
+				.refine((v) => !!v && v.length > 0, {
+					message: 'Data de início é obrigatória'
+				}),
+			endDate: z
+				.string()
+				.optional()
+				.refine((v) => !!v && v.length > 0, {
+					message: 'Data de finalização é obrigatória'
+				}),
+			status: z
+				.nativeEnum(ProjectStatus)
+				.optional()
+				.refine((v) => !!v, { message: 'Status é obrigatório' })
+		})
+		.superRefine((data, ctx) => {
+			if (!data.startDate || !data.endDate) {return}
+
+			const start = new Date(data.startDate)
+			const end = new Date(data.endDate)
+
+			if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
+				if (end < start) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						path: ['endDate'],
+						message:
+							'Data de finalização deve ser posterior à data de início'
+					})
+				}
+			}
+		})
+
 	const validateProject = (
 		input: Partial<CreateProjectInput>
 	): ValidationErrors => {
+		const parsed = projectSchema.safeParse(input)
+		if (parsed.success) {return {}}
+
 		const errors: ValidationErrors = {}
-
-		if (!input.name || input.name.trim().length === 0) {
-			errors.name = 'Nome do projeto é obrigatório'
-		} else if (input.name.trim().length < 3) {
-			errors.name = 'Nome deve ter no mínimo 3 caracteres'
-		} else if (input.name.trim().length > 100) {
-			errors.name = 'Nome deve ter no máximo 100 caracteres'
+		for (const issue of parsed.error.issues) {
+			const field = issue.path[0]
+			if (!field) {continue}
+			if (typeof field !== 'string') {continue}
+			if (field in errors) {continue
+			}(errors as Record<string, string>)[field] = issue.message
 		}
-
-		if (!input.description || input.description.trim().length === 0) {
-			errors.description = 'Descrição é obrigatória'
-		} else if (input.description.trim().length < 10) {
-			errors.description = 'Descrição deve ter no mínimo 10 caracteres'
-		} else if (input.description.trim().length > 500) {
-			errors.description = 'Descrição deve ter no máximo 500 caracteres'
-		}
-
-		if (!input.startDate) {
-			errors.startDate = 'Data de início é obrigatória'
-		}
-
-		if (!input.endDate) {
-			errors.endDate = 'Data de finalização é obrigatória'
-		}
-
-		if (input.startDate && input.endDate) {
-			const start = new Date(input.startDate)
-			const end = new Date(input.endDate)
-
-			if (end < start) {
-				errors.endDate = 'Data de finalização deve ser posterior à data de início'
-			}
-		}
-
-		if (!input.status) {
-			errors.status = 'Status é obrigatório'
-		}
-
 		return errors
 	}
 
-	const hasErrors = (errors: ValidationErrors): boolean => {
-		return Object.keys(errors).length > 0
-	}
+	const hasErrors = (errors: ValidationErrors): boolean =>
+		Object.keys(errors).length > 0
 
 	return {
 		validateProject,

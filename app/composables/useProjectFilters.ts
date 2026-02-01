@@ -1,5 +1,5 @@
 import { useProjectStore } from '../stores/project'
-import type { SortOption } from '../../shared/types/project'
+import type { SortOption } from '#shared/types/project'
 
 export const useProjectFilters = () => {
 	const store = useProjectStore()
@@ -11,7 +11,7 @@ export const useProjectFilters = () => {
 
 	const showFavoritesOnly = computed({
 		get: () => store.filters.showFavoritesOnly,
-		set: () => store.toggleFavoritesFilter()
+		set: (value: boolean) => store.setShowFavoritesOnly(value)
 	})
 
 	const sortBy = computed({
