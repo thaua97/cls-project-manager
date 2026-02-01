@@ -12,7 +12,29 @@ export const projectActions = {
 		this.error = null
 
 		try {
-			return
+			const api = useProjectsApi()
+
+			const sortMap: Record<SortOption, 'name_asc' | 'startDate_desc' | 'endDate_asc'> = {
+				alphabetical: 'name_asc',
+				startDate: 'startDate_desc',
+				endDate: 'endDate_asc'
+			}
+
+			const query =
+				this.filters.search.length >= 3 ? this.filters.search : undefined
+
+			const result = await api.listProjects({
+				favorites: this.filters.showFavoritesOnly,
+				sort: sortMap[this.filters.sortBy],
+				...(query ? { query } : {})
+			})
+
+			if (!result.success) {
+				this.error = result.error
+				return
+			}
+
+			this.projects = result.projects as unknown as Project[]
 		} catch (error) {
 			this.error = 'Erro ao carregar projetos'
 			console.error('Error fetching projects:', error)
@@ -29,14 +51,15 @@ export const projectActions = {
 		this.error = null
 
 		try {
-			const project: Project = {
-				id: crypto.randomUUID(),
-				...input,
-				isFavorite: false,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString()
+			const api = useProjectsApi()
+			const result = await api.createProject(input)
+
+			if (!result.success) {
+				this.error = result.error
+				return null
 			}
 
+			const project = result.project as unknown as Project
 			this.projects.push(project)
 			return project
 		} catch (error) {
@@ -56,17 +79,22 @@ export const projectActions = {
 		this.error = null
 
 		try {
-			const index = this.projects.findIndex((p: Project) => p.id === input.id)
-			if (index !== -1) {
-				const { id: _id, ...updates } = input
-				this.projects[index] = {
-					...this.projects[index],
-					...updates,
-					updatedAt: new Date().toISOString()
-				} as Project
-				return true
+			const api = useProjectsApi()
+			const { id, ...updates } = input
+
+			const result = await api.updateProject(id, updates)
+			if (!result.success) {
+				this.error = result.error
+				return false
 			}
-			return false
+
+			const index = this.projects.findIndex((p: Project) => p.id === id)
+			if (index === -1) {
+				return false
+			}
+
+			this.projects[index] = result.project as unknown as Project
+			return true
 		} catch (error) {
 			this.error = 'Erro ao atualizar projeto'
 			console.error('Error updating project:', error)
@@ -81,12 +109,19 @@ export const projectActions = {
 		this.error = null
 
 		try {
-			const index = this.projects.findIndex((p: Project) => p.id === id)
-			if (index !== -1) {
-				this.projects.splice(index, 1)
-				return true
+			const api = useProjectsApi()
+			const result = await api.deleteProject(id)
+			if (!result.success) {
+				this.error = result.error
+				return false
 			}
-			return false
+
+			const index = this.projects.findIndex((p: Project) => p.id === id)
+			if (index === -1) {
+				return false
+			}
+			this.projects.splice(index, 1)
+			return true
 		} catch (error) {
 			this.error = 'Erro ao remover projeto'
 			console.error('Error deleting project:', error)
@@ -98,13 +133,22 @@ export const projectActions = {
 
 	async toggleFavorite(this: ProjectState, id: string): Promise<boolean> {
 		try {
-			const project = this.projects.find((p: Project) => p.id === id)
-			if (project) {
-				project.isFavorite = !project.isFavorite
-				project.updatedAt = new Date().toISOString()
-				return true
+			this.error = null
+			const api = useProjectsApi()
+			const result = await api.toggleFavorite(id)
+
+			if (!result.success) {
+				this.error = result.error
+				return false
 			}
-			return false
+
+			const index = this.projects.findIndex((p: Project) => p.id === id)
+			if (index === -1) {
+				return false
+			}
+
+			this.projects[index] = result.project as unknown as Project
+			return true
 		} catch (error) {
 			this.error = 'Erro ao favoritar projeto'
 			console.error('Error toggling favorite:', error)
@@ -125,6 +169,10 @@ export const projectActions = {
 
 	toggleFavoritesFilter(this: ProjectState) {
 		this.filters.showFavoritesOnly = !this.filters.showFavoritesOnly
+	},
+
+	setShowFavoritesOnly(this: ProjectState, value: boolean) {
+		this.filters.showFavoritesOnly = value
 	},
 
 	setSortBy(this: ProjectState, sortBy: SortOption) {
