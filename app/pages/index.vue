@@ -1,6 +1,11 @@
 <template>
   <section v-if="projects.length">
-    <ClsToolbar :total="projects.length" />
+    <ClsToolbar
+      :total="total"
+      v-model:sortBy="sortBy"
+      v-model:showFavoritesOnly="showFavoritesOnly"
+      @create="onCreate"
+    />
     <ClsProjectList>
       <ClsProjectCard
         v-for="project in projects"
@@ -24,16 +29,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from "vue";
-import { useProjectStore } from "../stores/project";
-
-const store = useProjectStore();
-const projects = computed(() => store.filteredProjects);
+const { projects, fetchProjects } = useProjectList();
+const { sortBy, showFavoritesOnly } = useProjectFilters();
 const total = computed(() => projects.value.length);
 
 onMounted(() => {
-  store.fetchProjects();
+  fetchProjects();
 });
+
+const onCreate = () => {
+  navigateTo("/project/new");
+};
 
 useHead({
   title: computed(() => `(${total.value}) Gerenciador de Projetos`),
