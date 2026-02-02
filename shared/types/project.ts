@@ -5,6 +5,7 @@ export interface Project {
 	background?: string
 	startDate: string
 	endDate: string
+	userId: string
 	status: ProjectStatus
 	isFavorite: boolean
 	createdAt: string
@@ -32,7 +33,7 @@ export interface CreateProjectInput {
 	background?: string
 	startDate: string
 	endDate: string
-	status: ProjectStatus
+	userId: string
 }
 
 export interface UpdateProjectInput extends Partial<CreateProjectInput> {

@@ -11,6 +11,10 @@ export default defineEventHandler(async (event) => {
 
 	const method = getMethod(event)
 
+	const isPublicAuthRoute =
+		method === 'POST' &&
+		(/auth\/login/.test(targetPath) || /^users$/.test(targetPath))
+
 	const incomingHeaders = getHeaders(event)
 	const headers: Record<string, string> = {}
 	for (const [key, value] of Object.entries(incomingHeaders)) {
@@ -26,7 +30,46 @@ export default defineEventHandler(async (event) => {
 		) {
 			continue
 		}
+		if (isPublicAuthRoute && lower === 'authorization') {
+			continue
+		}
 		headers[key] = Array.isArray(value) ? value.join(',') : String(value)
+	}
+
+	if (!isPublicAuthRoute) {
+		const existingAuthorization =
+			headers.authorization ?? headers.Authorization ?? headers.AUTHORIZATION
+
+		const hasValidBearer =
+			typeof existingAuthorization === 'string' &&
+			/^Bearer\s+\S+/.test(existingAuthorization)
+
+		if (!hasValidBearer) {
+			const cookies = parseCookies(event)
+			let rawToken = cookies.cls_pm_token
+			const cookieHeader = getHeader(event, 'cookie')
+			if (cookieHeader) {
+				const matches = Array.from(
+					cookieHeader.matchAll(/(?:^|;\s*)cls_pm_token=([^;]+)/g)
+				)
+				const last = matches.at(-1)
+				if (last?.[1]) {
+					rawToken = last[1]
+				}
+			}
+			if (rawToken && rawToken !== 'null' && rawToken !== 'undefined') {
+				let token = rawToken
+				try {
+					token = decodeURIComponent(rawToken)
+				} catch {
+					// keep raw
+				}
+
+				headers.authorization = `Bearer ${token}`
+				delete (headers as Record<string, unknown>).Authorization
+				delete (headers as Record<string, unknown>).AUTHORIZATION
+			}
+		}
 	}
 
 	let body: Record<string, unknown> | BodyInit | null | undefined
@@ -39,25 +82,12 @@ export default defineEventHandler(async (event) => {
 		}
 	}
 
-	const response = await $fetch.raw(targetUrl, {
+	const response = await $fetch(targetUrl, {
 		method,
 		headers,
-		body
+		body,
+		responseType: 'json'
 	})
 
-	setResponseStatus(event, response.status)
-
-	for (const [key, value] of response.headers.entries()) {
-		const lower = key.toLowerCase()
-		if (
-			lower === 'content-encoding' ||
-			lower === 'transfer-encoding' ||
-			lower === 'connection'
-		) {
-			continue
-		}
-		setHeader(event, key, value)
-	}
-
-	return response._data
+	return response
 })
