@@ -26,7 +26,7 @@ const form = ref<CreateProjectInput>({
   client: "",
   startDate: new Date().toISOString().slice(0, 10),
   endDate: new Date().toISOString().slice(0, 10),
-  status: ProjectStatus.NOT_STARTED,
+  userId: "",
   background: undefined,
 });
 

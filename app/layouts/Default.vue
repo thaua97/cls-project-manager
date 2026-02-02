@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen w-full flex flex-col">
     <ClsHeader />
+    <ClsAuthModal />
     <main class="flex-1 h-screen p-8 bg-background">
       <slot />
     </main>

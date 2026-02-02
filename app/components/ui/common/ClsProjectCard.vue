@@ -47,6 +47,8 @@ import dayjs from "dayjs";
 
 const { project } = defineProps<{ project: Project }>();
 
+console.log(project);
+
 const { toggleFavorite, deleteProject } = useProject();
 const dialog = useConfirmationDialog();
 

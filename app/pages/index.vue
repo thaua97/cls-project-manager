@@ -29,13 +29,20 @@
 </template>
 
 <script lang="ts" setup>
+const auth = useAuth();
 const { projects, fetchProjects } = useProjectList();
 const { sortBy, showFavoritesOnly } = useProjectFilters();
 const total = computed(() => projects.value.length);
 
-onMounted(() => {
-  fetchProjects();
-});
+watch(
+  () => auth.isAuthenticated.value,
+  (isAuth) => {
+    if (isAuth) {
+      fetchProjects();
+    }
+  },
+  { immediate: true },
+);
 
 const onCreate = () => {
   navigateTo("/project/new");

@@ -4,8 +4,12 @@
       <Icon name="mdi-light:arrow-left" size="24" />
       Voltar
     </NuxtLink>
-    <h1 class="text-2xl font-semibold text-primary-800">Novo Projeto</h1>
+    <h1 class="text-2xl font-semibold text-primary-800">{{ pageTitle }}</h1>
   </header>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const { title } = defineProps<{ title?: string }>();
+
+const pageTitle = computed(() => title || "Novo Projeto");
+</script>

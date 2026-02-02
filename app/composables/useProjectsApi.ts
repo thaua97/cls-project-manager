@@ -4,14 +4,16 @@ import type {
 } from '../utils/clsPmApi/types'
 
 import { ProjectStatus } from '#shared/types/project'
+import { useAuthStore } from '../stores/auth'
 
 const mapApiProjectToUi = (project: ApiProject) => {
 	return {
 		id: project.id,
 		name: project.name,
-		client: project.description ?? '',
+		client: project.client,
 		startDate: project.startDate,
 		endDate: project.endDate,
+		userId: useAuthStore()?.userId,
 		status: ProjectStatus.NOT_STARTED,
 		isFavorite: project.isFavorite,
 		createdAt: project.createdAt,
@@ -21,12 +23,94 @@ const mapApiProjectToUi = (project: ApiProject) => {
 
 export const useProjectsApi = () => {
 	const api = useClsPmApi()
+	const authStore = useAuthStore()
+
+	const isGuest = () => authStore.isGuest
+	const guestStorageKey = 'cls_pm_guest_projects'
+
+	type GuestProject = ReturnType<typeof mapApiProjectToUi>
+
+	const readGuestProjects = (): GuestProject[] => {
+		if (typeof window === 'undefined') {
+			return []
+		}
+		try {
+			const raw = localStorage.getItem(guestStorageKey)
+			if (!raw) {
+				return []
+			}
+			const parsed = JSON.parse(raw) as unknown
+			return Array.isArray(parsed) ? (parsed as GuestProject[]) : []
+		} catch (error) {
+			console.error('Error reading guest projects:', error)
+			return []
+		}
+	}
+
+	const writeGuestProjects = (projects: GuestProject[]) => {
+		if (typeof window === 'undefined') {
+			return
+		}
+		try {
+			localStorage.setItem(guestStorageKey, JSON.stringify(projects))
+		} catch (error) {
+			console.error('Error writing guest projects:', error)
+		}
+	}
+
+	const sortGuestProjects = (projects: GuestProject[], sort?: ProjectSort) => {
+		const sorted = [...projects]
+		switch (sort) {
+		case 'name_asc':
+			return sorted.sort((a, b) => a.name.localeCompare(b.name))
+		case 'startDate_desc':
+			return sorted.sort(
+				(a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+			)
+		case 'endDate_asc':
+			return sorted.sort(
+				(a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
+			)
+		default:
+			return sorted
+		}
+	}
 
 	const listProjects = async (params?: {
 		favorites?: boolean
 		sort?: ProjectSort
 		query?: string
 	}) => {
+		if (isGuest()) {
+			try {
+				let projects = readGuestProjects()
+
+				if (params?.favorites !== undefined) {
+					projects = projects.filter((p) => p.isFavorite === params.favorites)
+				}
+
+				if (params?.query && params.query.length >= 3) {
+					const q = params.query.toLowerCase()
+					projects = projects.filter(
+						(p) =>
+							p.name.toLowerCase().includes(q) ||
+							(p.client?.toLowerCase().includes(q) ?? false)
+					)
+				}
+
+				projects = sortGuestProjects(projects, params?.sort)
+
+				return {
+					success: true as const,
+					total: projects.length,
+					projects
+				}
+			} catch (error) {
+				console.error('Error listing guest projects:', error)
+				return { success: false as const, error: 'Erro ao carregar projetos' }
+			}
+		}
+
 		try {
 			const data = await api.listProjects(params)
 			return {
@@ -41,6 +125,20 @@ export const useProjectsApi = () => {
 	}
 
 	const getProject = async (id: string) => {
+		if (isGuest()) {
+			try {
+				const projects = readGuestProjects()
+				const project = projects.find((p) => p.id === id)
+				if (!project) {
+					return { success: false as const, error: 'Projeto não encontrado' }
+				}
+				return { success: true as const, project }
+			} catch (error) {
+				console.error('Error getting guest project:', error)
+				return { success: false as const, error: 'Erro ao carregar projeto' }
+			}
+		}
+
 		try {
 			const data = await api.getProject(id)
 			return { success: true as const, project: mapApiProjectToUi(data.project) }
@@ -58,12 +156,46 @@ export const useProjectsApi = () => {
 		background?: string
 		status?: string
 	}) => {
+		if (isGuest()) {
+			try {
+				const projects = readGuestProjects()
+				const now = new Date().toISOString()
+				const id =
+					typeof window !== 'undefined' && typeof crypto?.randomUUID === 'function'
+						? crypto.randomUUID()
+						: `guest-${Math.random().toString(36).slice(2)}`
+
+				const status = (input.status as ProjectStatus) ?? ProjectStatus.NOT_STARTED
+				const project: GuestProject = {
+					id,
+					name: input.name,
+					client: input.client,
+					startDate: input.startDate,
+					endDate: input.endDate,
+					userId: authStore.userId,
+					status,
+					isFavorite: false,
+					createdAt: now,
+					updatedAt: now
+				}
+
+				projects.push(project)
+				writeGuestProjects(projects)
+
+				return { success: true as const, project }
+			} catch (error) {
+				console.error('Error creating guest project:', error)
+				return { success: false as const, error: 'Erro ao criar projeto' }
+			}
+		}
+
 		try {
 			const payload = {
 				name: input.name,
-				description: input.client,
+				client: input.client,
 				startDate: input.startDate,
-				endDate: input.endDate
+				endDate: input.endDate,
+				userId: authStore.userId
 			}
 			const data = await api.createProject(payload)
 			const projectResponse = await api.getProject(data.id)
@@ -84,11 +216,42 @@ export const useProjectsApi = () => {
 		endDate?: string
 		isFavorite?: boolean
 	}) => {
+		if (isGuest()) {
+			try {
+				const projects = readGuestProjects()
+				const index = projects.findIndex((p) => p.id === id)
+				if (index === -1) {
+					return { success: false as const, error: 'Projeto não encontrado' }
+				}
+				const current = projects[index]
+				if (!current) {
+					return { success: false as const, error: 'Projeto não encontrado' }
+				}
+				const updated: GuestProject = {
+					...current,
+					...(input.name !== undefined ? { name: input.name } : {}),
+					...(input.client !== undefined ? { client: input.client } : {}),
+					...(input.startDate !== undefined ? { startDate: input.startDate } : {}),
+					...(input.endDate !== undefined ? { endDate: input.endDate } : {}),
+					...(input.isFavorite !== undefined
+						? { isFavorite: input.isFavorite }
+						: {}),
+					updatedAt: new Date().toISOString()
+				}
+				projects[index] = updated
+				writeGuestProjects(projects)
+				return { success: true as const, project: updated }
+			} catch (error) {
+				console.error('Error updating guest project:', error)
+				return { success: false as const, error: 'Erro ao atualizar projeto' }
+			}
+		}
+
 		try {
 			const payload = {
 				...(input.name !== undefined ? { name: input.name } : {}),
 				...(input.client !== undefined
-					? { description: input.client }
+					? { client: input.client }
 					: {}),
 				...(input.startDate !== undefined ? { startDate: input.startDate } : {}),
 				...(input.endDate !== undefined ? { endDate: input.endDate } : {}),
@@ -108,6 +271,17 @@ export const useProjectsApi = () => {
 	}
 
 	const deleteProject = async (id: string) => {
+		if (isGuest()) {
+			try {
+				const projects = readGuestProjects()
+				writeGuestProjects(projects.filter((p) => p.id !== id))
+				return { success: true as const }
+			} catch (error) {
+				console.error('Error deleting guest project:', error)
+				return { success: false as const, error: 'Erro ao remover projeto' }
+			}
+		}
+
 		try {
 			await api.deleteProject(id)
 			return { success: true as const }
@@ -118,6 +292,31 @@ export const useProjectsApi = () => {
 	}
 
 	const toggleFavorite = async (id: string) => {
+		if (isGuest()) {
+			try {
+				const projects = readGuestProjects()
+				const index = projects.findIndex((p) => p.id === id)
+				if (index === -1) {
+					return { success: false as const, error: 'Projeto não encontrado' }
+				}
+				const current = projects[index]
+				if (!current) {
+					return { success: false as const, error: 'Projeto não encontrado' }
+				}
+				const updated: GuestProject = {
+					...current,
+					isFavorite: !current.isFavorite,
+					updatedAt: new Date().toISOString()
+				}
+				projects[index] = updated
+				writeGuestProjects(projects)
+				return { success: true as const, project: updated }
+			} catch (error) {
+				console.error('Error toggling favorite guest project:', error)
+				return { success: false as const, error: 'Erro ao favoritar projeto' }
+			}
+		}
+
 		try {
 			const data = await api.toggleFavoriteProject(id)
 			return {

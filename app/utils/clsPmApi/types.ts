@@ -20,7 +20,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-	token: string
+	userId: string
+	bearer: string
 }
 
 export type ProjectSort = 'name_asc' | 'startDate_desc' | 'endDate_asc'
@@ -28,7 +29,7 @@ export type ProjectSort = 'name_asc' | 'startDate_desc' | 'endDate_asc'
 export interface ApiProject {
 	id: string
 	name: string
-	description: string | null
+	client: string | null
 	startDate: string
 	endDate: string
 	isFavorite: boolean
@@ -47,7 +48,7 @@ export interface GetProjectResponse {
 
 export interface CreateProjectRequest {
 	name: string
-	description?: string | null
+	client?: string | null
 	startDate: string
 	endDate: string
 }
@@ -58,7 +59,7 @@ export interface CreateProjectResponse {
 
 export interface UpdateProjectRequest {
 	name?: string
-	description?: string | null
+	client?: string | null
 	startDate?: string
 	endDate?: string
 	isFavorite?: boolean
