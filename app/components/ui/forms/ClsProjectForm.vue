@@ -55,19 +55,8 @@
           {{ errors.endDate }}
         </p>
       </div>
-
-      <UFormField class="w-full text-black" label="Status">
-        <USelect
-          v-model="model.status"
-          :items="statusItems"
-          class="w-full bg-white text-primary-800"
-        />
-        <p v-if="errors?.status" class="text-red-600 text-sm">
-          {{ errors.status }}
-        </p>
-      </UFormField>
       <UFormField label="Capa do projeto">
-        <ClsUploadFile />
+        <ClsUploadFile v-model="backgroundFile" />
       </UFormField>
       <ClsButton type="submit" variant="washed" :disabled="loading">
         Salvar Projeto
@@ -87,8 +76,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: CreateProjectInput): void;
-  (e: "submit"): void;
+  (e: "submit", file: File | null): void;
 }>();
+
+const backgroundFile = ref<File | null>(null);
 
 const model = computed({
   get: () => props.modelValue,
@@ -98,14 +89,7 @@ const model = computed({
 const errors = computed(() => props.errors);
 const loading = computed(() => props.loading);
 
-const statusItems = computed(() => [
-  { label: "Não iniciado", value: "not_started" as ProjectStatus },
-  { label: "Em andamento", value: "in_progress" as ProjectStatus },
-  { label: "Concluído", value: "completed" as ProjectStatus },
-  { label: "Em espera", value: "on_hold" as ProjectStatus },
-]);
-
 const onSubmit = () => {
-  emit("submit");
+  emit("submit", backgroundFile.value);
 };
 </script>

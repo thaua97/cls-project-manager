@@ -6,7 +6,52 @@ import type {
 } from '../../../shared/types/project'
 import type { ProjectState } from './state'
 
+const searchHistoryStorageKey = 'cls_pm_project_search_history'
+
+const readSearchHistory = (): string[] => {
+	if (typeof window === 'undefined') {
+		return []
+	}
+
+	try {
+		const raw = localStorage.getItem(searchHistoryStorageKey)
+		if (!raw) {
+			return []
+		}
+		const parsed = JSON.parse(raw) as unknown
+		return Array.isArray(parsed) ? parsed.filter((x) => typeof x === 'string') : []
+	} catch (error) {
+		console.error('Error reading search history:', error)
+		return []
+	}
+}
+
+const writeSearchHistory = (items: string[]) => {
+	if (typeof window === 'undefined') {
+		return
+	}
+
+	try {
+		localStorage.setItem(searchHistoryStorageKey, JSON.stringify(items))
+	} catch (error) {
+		console.error('Error writing search history:', error)
+	}
+}
+
 export const projectActions = {
+	hydrateSearchHistory(this: ProjectState) {
+		if (this.hasHydratedSearchHistory) {
+			return
+		}
+
+		this.searchHistory = readSearchHistory()
+		this.hasHydratedSearchHistory = true
+	},
+
+	persistSearchHistory(this: ProjectState) {
+		writeSearchHistory(this.searchHistory)
+	},
+
 	async fetchProjects(this: ProjectState) {
 		this.isLoading = true
 		this.error = null
@@ -156,15 +201,60 @@ export const projectActions = {
 		}
 	},
 
+	async uploadBackground(
+		this: ProjectState,
+		id: string,
+		file: File
+	): Promise<boolean> {
+		this.isLoading = true
+		this.error = null
+
+		try {
+			const api = useProjectsApi()
+			const result = await api.uploadBackground(id, file)
+
+			if (!result.success) {
+				this.error = result.error
+				return false
+			}
+
+			const index = this.projects.findIndex((p: Project) => p.id === id)
+			if (index !== -1) {
+				this.projects[index] = result.project as unknown as Project
+			}
+			return true
+		} catch (error) {
+			this.error = 'Erro ao fazer upload da imagem'
+			console.error('Error uploading background:', error)
+			return false
+		} finally {
+			this.isLoading = false
+		}
+	},
+
 	setSearch(this: ProjectState, search: string) {
 		this.filters.search = search
+	},
 
-		if (search.length >= 3 && !this.searchHistory.includes(search)) {
-			this.searchHistory.unshift(search)
-			if (this.searchHistory.length > 5) {
-				this.searchHistory = this.searchHistory.slice(0, 5)
-			}
+	addToSearchHistory(this: ProjectState, search: string) {
+		const term = search.trim()
+		if (term.length < 3) {
+			return
 		}
+
+		const next = [term, ...this.searchHistory.filter((x) => x !== term)]
+		this.searchHistory = next.slice(0, 5)
+		writeSearchHistory(this.searchHistory)
+	},
+
+	removeSearchHistoryItem(this: ProjectState, search: string) {
+		this.searchHistory = this.searchHistory.filter((x) => x !== search)
+		writeSearchHistory(this.searchHistory)
+	},
+
+	clearSearchHistory(this: ProjectState) {
+		this.searchHistory = []
+		writeSearchHistory(this.searchHistory)
 	},
 
 	toggleFavoritesFilter(this: ProjectState) {

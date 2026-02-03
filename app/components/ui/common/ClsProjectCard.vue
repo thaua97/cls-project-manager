@@ -1,7 +1,13 @@
 <template>
-  <article class="h-[430px] w-[300px] bg-white rounded-2xl shadow-xl">
-    <figure class="relative">
-      <img src="/img/project-backdrop.png" alt="" />
+  <article
+    class="lg:h-[430px] lg:w-[300px] sm:w-full bg-white rounded-2xl shadow-xl"
+  >
+    <figure class="relative lg:w-[300px] sm:w-full h-[230px]">
+      <img
+        class="w-full h-full object-cover rounded-tl-2xl rounded-tr-2xl"
+        :src="projectCover"
+        :alt="project.name"
+      />
       <div
         class="absolute bottom-2 right-2 gap-2 flex items-center justify-center"
       >
@@ -44,6 +50,8 @@
 
 <script lang="ts" setup>
 import dayjs from "dayjs";
+import ptBr from "dayjs/locale/pt-br";
+dayjs.locale(ptBr);
 
 const { project } = defineProps<{ project: Project }>();
 
@@ -52,9 +60,15 @@ console.log(project);
 const { toggleFavorite, deleteProject } = useProject();
 const dialog = useConfirmationDialog();
 
-const startDate = computed(() => dayjs(project.startDate).format("DD/MM/YYYY"));
-const endDate = computed(() => dayjs(project.endDate).format("DD/MM/YYYY"));
-
+const startDate = computed(() =>
+  dayjs(project.startDate).format("DD [de] MMMM [de] YYYY"),
+);
+const endDate = computed(() =>
+  dayjs(project.endDate).format("DD [de] MMMM [de] YYYY"),
+);
+const projectCover = computed(
+  () => project.backgroundUrl || "/img/project-backdrop.png",
+);
 const handleFavorite = () => {
   toggleFavorite(project.id);
 };

@@ -8,6 +8,7 @@ export const useAuth = () => {
 	const isAuthenticated = computed(() => store.isAuthenticated)
 	const isGuest = computed(() => store.isGuest)
 	const token = computed(() => store.token)
+	const userId = computed(() => store.userId)
 
 	const login = async (payload: LoginRequest) => {
 		try {
@@ -52,6 +53,7 @@ export const useAuth = () => {
 		isAuthenticated,
 		isGuest,
 		token,
+		userId,
 		login,
 		register,
 		loginAsGuest,

@@ -73,9 +73,14 @@ export default defineEventHandler(async (event) => {
 	}
 
 	let body: Record<string, unknown> | BodyInit | null | undefined
+	const contentType = getHeader(event, 'content-type') || ''
+
 	if (method !== 'GET' && method !== 'HEAD') {
-		const contentType = getHeader(event, 'content-type') || ''
-		if (contentType.includes('application/json')) {
+		if (contentType.includes('multipart/form-data')) {
+			const formData = await readFormData(event)
+			body = formData
+			delete headers['content-type']
+		} else if (contentType.includes('application/json')) {
 			body = await readBody<Record<string, unknown> | null>(event)
 		} else {
 			body = await readRawBody(event)

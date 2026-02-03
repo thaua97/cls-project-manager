@@ -5,6 +5,7 @@
     :ui="{
       wrapper: 'flex flex-col items-center justify-center',
       content: 'overflow-visible',
+      overlay: 'bg-black/70',
     }"
   >
     <template #content="{ close }">

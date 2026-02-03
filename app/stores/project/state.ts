@@ -2,6 +2,7 @@ export interface ProjectState {
 	projects: Project[]
 	filters: ProjectFilters
 	searchHistory: string[]
+	hasHydratedSearchHistory: boolean
 	isLoading: boolean
 	error: string | null
 }
@@ -14,6 +15,7 @@ export const initialState = (): ProjectState => ({
 		sortBy: 'alphabetical'
 	},
 	searchHistory: [],
+	hasHydratedSearchHistory: false,
 	isLoading: false,
 	error: null
 })

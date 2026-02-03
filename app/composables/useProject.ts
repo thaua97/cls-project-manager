@@ -1,26 +1,40 @@
 import { useProjectStore } from '../stores/project'
-import type { CreateProjectInput, UpdateProjectInput } from '../../shared/types/project'
+import type {
+	CreateProjectInput,
+	UpdateProjectInput
+} from '../../shared/types/project'
 
 export const useProject = () => {
 	const store = useProjectStore()
-	const router = useRouter()
 
-	const createProject = async (input: CreateProjectInput) => {
+	const createProject = async (
+		input: CreateProjectInput,
+		backgroundFile?: File | null
+	) => {
 		const project = await store.createProject(input)
 		
 		if (project) {
-			await router.push('/')
+			if (backgroundFile) {
+				await store.uploadBackground(project.id, backgroundFile)
+			}
+			await navigateTo('/')
 			return { success: true, project }
 		}
 		
 		return { success: false, error: store.error }
 	}
 
-	const updateProject = async (input: UpdateProjectInput) => {
+	const updateProject = async (
+		input: UpdateProjectInput,
+		backgroundFile?: File | null
+	) => {
 		const success = await store.updateProject(input)
 		
 		if (success) {
-			await router.push('/')
+			if (backgroundFile) {
+				await store.uploadBackground(input.id, backgroundFile)
+			}
+			await navigateTo('/')
 			return { success: true }
 		}
 		

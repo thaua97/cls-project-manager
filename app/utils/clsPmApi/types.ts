@@ -30,8 +30,10 @@ export interface ApiProject {
 	id: string
 	name: string
 	client: string | null
+	backgroundUrl: string | null
 	startDate: string
 	endDate: string
+	userId: string
 	isFavorite: boolean
 	createdAt: string
 	updatedAt: string
@@ -70,5 +72,9 @@ export interface UpdateProjectResponse {
 }
 
 export interface ToggleFavoriteResponse {
+	project: ApiProject
+}
+
+export interface UploadBackgroundResponse {
 	project: ApiProject
 }

@@ -1,10 +1,17 @@
 <template>
-  <header class="flex flex-col items-start gap-2">
-    <NuxtLink to="/" class="flex items-center gap-2 text-base text-primary-800">
-      <Icon name="mdi-light:arrow-left" size="24" />
+  <header class="flex w-full flex-col items-start gap-1 sm:gap-2">
+    <NuxtLink
+      to="/"
+      class="flex items-center gap-2 text-sm sm:text-base text-primary-800"
+    >
+      <Icon name="mdi-light:arrow-left" size="20" />
       Voltar
     </NuxtLink>
-    <h1 class="text-2xl font-semibold text-primary-800">{{ pageTitle }}</h1>
+    <h1
+      class="max-w-full wrap-break-word text-xl sm:text-2xl font-semibold leading-tight text-primary-800"
+    >
+      {{ pageTitle }}
+    </h1>
   </header>
 </template>
 

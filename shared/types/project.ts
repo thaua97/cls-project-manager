@@ -2,7 +2,7 @@ export interface Project {
 	id: string
 	name: string
 	client: string
-	background?: string
+	backgroundUrl?: string
 	startDate: string
 	endDate: string
 	userId: string
@@ -30,10 +30,9 @@ export interface ProjectFilters {
 export interface CreateProjectInput {
 	name: string
 	client: string
-	background?: string
+	backgroundUrl?: string
 	startDate: string
 	endDate: string
-	userId: string
 }
 
 export interface UpdateProjectInput extends Partial<CreateProjectInput> {

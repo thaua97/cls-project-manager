@@ -11,9 +11,10 @@ const mapApiProjectToUi = (project: ApiProject) => {
 		id: project.id,
 		name: project.name,
 		client: project.client,
+		backgroundUrl: project.backgroundUrl,
 		startDate: project.startDate,
 		endDate: project.endDate,
-		userId: useAuthStore()?.userId,
+		userId: project.userId,
 		status: ProjectStatus.NOT_STARTED,
 		isFavorite: project.isFavorite,
 		createdAt: project.createdAt,
@@ -24,6 +25,7 @@ const mapApiProjectToUi = (project: ApiProject) => {
 export const useProjectsApi = () => {
 	const api = useClsPmApi()
 	const authStore = useAuthStore()
+	authStore.syncFromCookies()
 
 	const isGuest = () => authStore.isGuest
 	const guestStorageKey = 'cls_pm_guest_projects'
@@ -170,9 +172,10 @@ export const useProjectsApi = () => {
 					id,
 					name: input.name,
 					client: input.client,
+					backgroundUrl: null,
 					startDate: input.startDate,
 					endDate: input.endDate,
-					userId: authStore.userId,
+					userId: authStore.userId ?? '',
 					status,
 					isFavorite: false,
 					createdAt: now,
@@ -194,10 +197,10 @@ export const useProjectsApi = () => {
 				name: input.name,
 				client: input.client,
 				startDate: input.startDate,
-				endDate: input.endDate,
-				userId: authStore.userId
+				endDate: input.endDate
 			}
 			const data = await api.createProject(payload)
+
 			const projectResponse = await api.getProject(data.id)
 			return {
 				success: true as const,
@@ -329,12 +332,30 @@ export const useProjectsApi = () => {
 		}
 	}
 
+	const uploadBackground = async (id: string, file: File) => {
+		if (isGuest()) {
+			return { success: false as const, error: 'Upload não disponível para convidados' }
+		}
+
+		try {
+			const data = await api.uploadBackground(id, file)
+			return {
+				success: true as const,
+				project: mapApiProjectToUi(data.project)
+			}
+		} catch (error) {
+			console.error('Error uploading background:', error)
+			return { success: false as const, error: 'Erro ao fazer upload da imagem' }
+		}
+	}
+
 	return {
 		listProjects,
 		getProject,
 		createProject,
 		updateProject,
 		deleteProject,
-		toggleFavorite
+		toggleFavorite,
+		uploadBackground
 	}
 }

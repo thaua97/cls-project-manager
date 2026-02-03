@@ -11,7 +11,8 @@ import type {
 	RegisterUserRequest,
 	RegisterUserResponse,
 	ToggleFavoriteResponse,
-	UpdateProjectRequest } from './types'
+	UpdateProjectRequest,
+	UploadBackgroundResponse } from './types'
 
 
 export interface ClsPmApi {
@@ -31,6 +32,7 @@ export interface ClsPmApi {
 	): Promise<UpdateProjectResponse>
 	deleteProject(id: string): Promise<void>
 	toggleFavoriteProject(id: string): Promise<ToggleFavoriteResponse>
+	uploadBackground(id: string, file: File): Promise<UploadBackgroundResponse>
 }
 
 export const createClsPmApi = (client: AxiosInstance): ClsPmApi => {
@@ -76,6 +78,15 @@ export const createClsPmApi = (client: AxiosInstance): ClsPmApi => {
 
 		async toggleFavoriteProject(id) {
 			const { data } = await client.post(`/projects/${id}/favorite`)
+			return data
+		},
+
+		async uploadBackground(id, file) {
+			const formData = new FormData()
+			formData.append('file', file)
+			const { data } = await client.post(`/projects/${id}/background`, formData, {
+				headers: { 'Content-Type': 'multipart/form-data' }
+			})
 			return data
 		}
 	}

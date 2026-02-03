@@ -40,8 +40,7 @@ const form = ref<CreateProjectInput>({
   client: "",
   startDate: new Date().toISOString().slice(0, 10),
   endDate: new Date().toISOString().slice(0, 10),
-  status: ProjectStatus.NOT_STARTED,
-  background: undefined,
+  backgroundUrl: undefined,
 });
 
 watch(
@@ -54,8 +53,7 @@ watch(
       client: value.client,
       startDate: value.startDate,
       endDate: value.endDate,
-      status: value.status,
-      background: value.background,
+      backgroundUrl: value.backgroundUrl,
     };
   },
   { immediate: true },
@@ -67,13 +65,13 @@ useHead({
   title: pageTitle,
 });
 
-const handleSubmit = async () => {
+const handleSubmit = async (backgroundFile: File | null) => {
   errors.value = validateProject(form.value);
   if (hasErrors(errors.value)) return;
 
   isSubmitting.value = true;
   try {
-    await updateProject({ id, ...form.value });
+    await updateProject({ id, ...form.value }, backgroundFile);
   } finally {
     isSubmitting.value = false;
   }

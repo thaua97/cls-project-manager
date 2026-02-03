@@ -1,5 +1,5 @@
 <template>
-  <button :class="buttonClasses" @click="emit('click')">
+  <button :class="buttonClasses" @click="(e) => emit('click', e)">
     <slot />
   </button>
 </template>
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  click: [];
+  click: [MouseEvent];
 }>();
 
 const buttonClasses = computed(() => {

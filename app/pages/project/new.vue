@@ -26,8 +26,7 @@ const form = ref<CreateProjectInput>({
   client: "",
   startDate: new Date().toISOString().slice(0, 10),
   endDate: new Date().toISOString().slice(0, 10),
-  userId: "",
-  background: undefined,
+  backgroundUrl: undefined,
 });
 
 const pageTitle = computed(() => "Novo Projeto");
@@ -36,13 +35,13 @@ useHead({
   title: pageTitle,
 });
 
-const handleSubmit = async () => {
+const handleSubmit = async (backgroundFile: File | null) => {
   errors.value = validateProject(form.value);
   if (hasErrors(errors.value)) return;
 
   isSubmitting.value = true;
   try {
-    await createProject(form.value);
+    await createProject(form.value, backgroundFile);
   } finally {
     isSubmitting.value = false;
   }
