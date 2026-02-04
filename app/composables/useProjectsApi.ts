@@ -43,8 +43,7 @@ export const useProjectsApi = () => {
 			}
 			const parsed = JSON.parse(raw) as unknown
 			return Array.isArray(parsed) ? (parsed as GuestProject[]) : []
-		} catch (error) {
-			console.error('Error reading guest projects:', error)
+		} catch {
 			return []
 		}
 	}
@@ -55,8 +54,8 @@ export const useProjectsApi = () => {
 		}
 		try {
 			localStorage.setItem(guestStorageKey, JSON.stringify(projects))
-		} catch (error) {
-			console.error('Error writing guest projects:', error)
+		} catch {
+			return
 		}
 	}
 
@@ -107,8 +106,7 @@ export const useProjectsApi = () => {
 					total: projects.length,
 					projects
 				}
-			} catch (error) {
-				console.error('Error listing guest projects:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao carregar projetos' }
 			}
 		}
@@ -120,8 +118,7 @@ export const useProjectsApi = () => {
 				total: data.total,
 				projects: data.projects.map(mapApiProjectToUi)
 			}
-		} catch (error) {
-			console.error('Error listing projects:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao carregar projetos' }
 		}
 	}
@@ -135,8 +132,7 @@ export const useProjectsApi = () => {
 					return { success: false as const, error: 'Projeto não encontrado' }
 				}
 				return { success: true as const, project }
-			} catch (error) {
-				console.error('Error getting guest project:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao carregar projeto' }
 			}
 		}
@@ -144,8 +140,7 @@ export const useProjectsApi = () => {
 		try {
 			const data = await api.getProject(id)
 			return { success: true as const, project: mapApiProjectToUi(data.project) }
-		} catch (error) {
-			console.error('Error getting project:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao carregar projeto' }
 		}
 	}
@@ -186,8 +181,7 @@ export const useProjectsApi = () => {
 				writeGuestProjects(projects)
 
 				return { success: true as const, project }
-			} catch (error) {
-				console.error('Error creating guest project:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao criar projeto' }
 			}
 		}
@@ -206,8 +200,7 @@ export const useProjectsApi = () => {
 				success: true as const,
 				project: mapApiProjectToUi(projectResponse.project)
 			}
-		} catch (error) {
-			console.error('Error creating project:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao criar projeto' }
 		}
 	}
@@ -244,8 +237,7 @@ export const useProjectsApi = () => {
 				projects[index] = updated
 				writeGuestProjects(projects)
 				return { success: true as const, project: updated }
-			} catch (error) {
-				console.error('Error updating guest project:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao atualizar projeto' }
 			}
 		}
@@ -267,8 +259,7 @@ export const useProjectsApi = () => {
 				success: true as const,
 				project: mapApiProjectToUi(data.project)
 			}
-		} catch (error) {
-			console.error('Error updating project:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao atualizar projeto' }
 		}
 	}
@@ -279,8 +270,7 @@ export const useProjectsApi = () => {
 				const projects = readGuestProjects()
 				writeGuestProjects(projects.filter((p) => p.id !== id))
 				return { success: true as const }
-			} catch (error) {
-				console.error('Error deleting guest project:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao remover projeto' }
 			}
 		}
@@ -288,8 +278,7 @@ export const useProjectsApi = () => {
 		try {
 			await api.deleteProject(id)
 			return { success: true as const }
-		} catch (error) {
-			console.error('Error deleting project:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao remover projeto' }
 		}
 	}
@@ -314,8 +303,7 @@ export const useProjectsApi = () => {
 				projects[index] = updated
 				writeGuestProjects(projects)
 				return { success: true as const, project: updated }
-			} catch (error) {
-				console.error('Error toggling favorite guest project:', error)
+			} catch {
 				return { success: false as const, error: 'Erro ao favoritar projeto' }
 			}
 		}
@@ -326,8 +314,7 @@ export const useProjectsApi = () => {
 				success: true as const,
 				project: mapApiProjectToUi(data.project)
 			}
-		} catch (error) {
-			console.error('Error toggling favorite:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao favoritar projeto' }
 		}
 	}
@@ -343,8 +330,7 @@ export const useProjectsApi = () => {
 				success: true as const,
 				project: mapApiProjectToUi(data.project)
 			}
-		} catch (error) {
-			console.error('Error uploading background:', error)
+		} catch {
 			return { success: false as const, error: 'Erro ao fazer upload da imagem' }
 		}
 	}

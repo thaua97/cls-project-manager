@@ -20,8 +20,7 @@ const readSearchHistory = (): string[] => {
 		}
 		const parsed = JSON.parse(raw) as unknown
 		return Array.isArray(parsed) ? parsed.filter((x) => typeof x === 'string') : []
-	} catch (error) {
-		console.error('Error reading search history:', error)
+	} catch {
 		return []
 	}
 }
@@ -33,8 +32,8 @@ const writeSearchHistory = (items: string[]) => {
 
 	try {
 		localStorage.setItem(searchHistoryStorageKey, JSON.stringify(items))
-	} catch (error) {
-		console.error('Error writing search history:', error)
+	} catch {
+		return
 	}
 }
 
@@ -87,11 +86,10 @@ export const projectActions = {
 			}
 
 			this.projects = result.projects as unknown as Project[]
-		} catch (error) {
+		} catch {
 			if (token === this.fetchToken) {
 				this.error = 'Erro ao carregar projetos'
 			}
-			console.error('Error fetching projects:', error)
 		} finally {
 			if (token === this.fetchToken) {
 				this.isLoading = false
@@ -118,9 +116,8 @@ export const projectActions = {
 			const project = result.project as unknown as Project
 			this.projects.push(project)
 			return project
-		} catch (error) {
+		} catch {
 			this.error = 'Erro ao criar projeto'
-			console.error('Error creating project:', error)
 			return null
 		} finally {
 			this.isLoading = false
@@ -151,9 +148,8 @@ export const projectActions = {
 
 			this.projects[index] = result.project as unknown as Project
 			return true
-		} catch (error) {
+		} catch {
 			this.error = 'Erro ao atualizar projeto'
-			console.error('Error updating project:', error)
 			return false
 		} finally {
 			this.isLoading = false
@@ -178,9 +174,8 @@ export const projectActions = {
 			}
 			this.projects.splice(index, 1)
 			return true
-		} catch (error) {
+		} catch {
 			this.error = 'Erro ao remover projeto'
-			console.error('Error deleting project:', error)
 			return false
 		} finally {
 			this.isLoading = false
@@ -205,9 +200,8 @@ export const projectActions = {
 
 			this.projects[index] = result.project as unknown as Project
 			return true
-		} catch (error) {
+		} catch {
 			this.error = 'Erro ao favoritar projeto'
-			console.error('Error toggling favorite:', error)
 			return false
 		}
 	},
@@ -234,9 +228,8 @@ export const projectActions = {
 				this.projects[index] = result.project as unknown as Project
 			}
 			return true
-		} catch (error) {
+		} catch {
 			this.error = 'Erro ao fazer upload da imagem'
-			console.error('Error uploading background:', error)
 			return false
 		} finally {
 			this.isLoading = false

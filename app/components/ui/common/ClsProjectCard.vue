@@ -89,8 +89,6 @@ const { project, nameParts } = defineProps<{
   nameParts?: HighlightPart[];
 }>();
 
-console.log(project);
-
 const { toggleFavorite, deleteProject } = useProject();
 const dialog = useConfirmationDialog();
 

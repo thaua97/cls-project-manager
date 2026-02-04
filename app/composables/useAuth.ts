@@ -1,9 +1,11 @@
 import type { LoginRequest, RegisterUserRequest } from '../utils/clsPmApi/types'
 import { useAuthStore } from '../stores/auth'
+import { useToast } from '#ui/composables/useToast'
 
 export const useAuth = () => {
 	const store = useAuthStore()
 	const api = useClsPmApi()
+	const toast = useToast()
 	const canUseCredentials = useState<boolean>('auth:can-use-credentials', () => false)
 	const isCheckingHealth = useState<boolean>('auth:is-checking-health', () => false)
 
@@ -40,17 +42,26 @@ export const useAuth = () => {
 	const login = async (payload: LoginRequest) => {
 		try {
 			const response = await api.login(payload)
-			console.warn('[AUTH] Token received, length:', response.bearer?.length)
 			store.setToken(response.bearer)
 			store.setUserId(response.userId)
-			console.warn('[AUTH] isAuthenticated after setToken:', store.isAuthenticated)
+			toast.add({
+				title: 'Login realizado com sucesso',
+				description: 'Você foi autenticado com sucesso.',
+				icon: 'i-lucide-check'
+			})
 			return { success: true as const }
 
 		} catch (error: unknown) {
-			console.error('Login error:', error)
+			toast.add({
+				title: 'Erro ao realizar login',
+				color: 'error',
+				description: 'Verifique as credenciais e tente novamente.',
+				icon: 'i-lucide-check'
+			})
 			const message =
 				(error as { response?: { data?: { message?: string } } })?.response?.data
 					?.message ?? 'Credenciais inválidas'
+					
 			return { success: false as const, error: message }
 		}
 	}
@@ -58,9 +69,19 @@ export const useAuth = () => {
 	const register = async (payload: RegisterUserRequest) => {
 		try {
 			await api.registerUser(payload)
+			toast.add({
+				title: 'Conta criada com sucesso',
+				description: 'Basta realizar o login para começar.',
+				icon: 'i-lucide-check'
+			})
 			return { success: true as const }
 		} catch (error: unknown) {
-			console.error('Register error:', error)
+			toast.add({
+				title: 'Erro ao realizar login',
+				color: 'error',
+				description: 'Tente novamente.',
+				icon: 'i-lucide-check'
+			})
 			const message =
 				(error as { response?: { data?: { message?: string } } })?.response?.data
 					?.message ?? 'Erro ao criar conta'
