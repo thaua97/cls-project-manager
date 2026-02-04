@@ -9,18 +9,20 @@
       @create="onCreate"
     />
 
-    <section v-if="projects.length">
+    <section v-if="projects.length" data-testid="projects-list">
       <ClsProjectList>
         <ClsProjectCard
           v-for="project in projects"
           :key="project?.id"
           :project="project"
+          :name-parts="projectSearch.getProjectNameParts(project)"
         />
       </ClsProjectList>
     </section>
 
     <section
       v-else
+      data-testid="projects-empty-state"
       class="flex justify-center items-center w-full h-[80dvh] bg-white rounded-lg shadow-xl"
     >
       <ClsEmptyContent
@@ -37,6 +39,7 @@
 const auth = useAuth();
 const { projects, fetchProjects, totalProjectCount } = useProjectList();
 const { sortBy, showFavoritesOnly } = useProjectFilters();
+const projectSearch = useProjectSearch();
 const total = computed(() => projects.value.length);
 
 const hasEverHadProjects = ref(false);

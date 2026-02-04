@@ -1,52 +1,38 @@
 import { z } from 'zod'
 
-import { ProjectStatus, type CreateProjectInput } from '#shared/types/project'
+import type { CreateProjectInput } from '#shared/types/project'
 
 export type ValidationErrors = Partial<Record<keyof CreateProjectInput, string>>
 
 export const useProjectValidation = () => {
+	const asString = <T>(value: T) => (typeof value === 'string' ? value : '')
+
 	const projectSchema = z
 		.object({
-			name: z
-				.string()
-				.optional()
-				.refine((v) => !!v && v.trim().length > 0, {
-					message: 'Nome do projeto é obrigatório'
-				})
-				.refine((v) => !!v && v.trim().length >= 3, {
-					message: 'Nome deve ter no mínimo 3 caracteres'
-				})
-				.refine((v) => !!v && v.trim().length <= 100, {
-					message: 'Nome deve ter no máximo 100 caracteres'
-				}),
-			client: z
-				.string()
-				.optional()
-				.refine((v) => !!v && v.trim().length > 0, {
-					message: 'Cliente é obrigatório'
-				})
-				.refine((v) => !!v && v.trim().length >= 2, {
-					message: 'Cliente deve ter no mínimo 2 caracteres'
-				})
-				.refine((v) => !!v && v.trim().length <= 100, {
-					message: 'Cliente deve ter no máximo 100 caracteres'
-				}),
-			startDate: z
-				.string()
-				.optional()
-				.refine((v) => !!v && v.length > 0, {
-					message: 'Data de início é obrigatória'
-				}),
-			endDate: z
-				.string()
-				.optional()
-				.refine((v) => !!v && v.length > 0, {
-					message: 'Data de finalização é obrigatória'
-				}),
-			status: z
-				.nativeEnum(ProjectStatus)
-				.optional()
-				.refine((v) => !!v, { message: 'Status é obrigatório' })
+			name: z.preprocess(
+				asString,
+				z
+					.string()
+					.min(1, 'Nome do projeto é obrigatório')
+					.min(3, 'Nome deve ter no mínimo 3 caracteres')
+					.max(100, 'Nome deve ter no máximo 100 caracteres')
+			),
+			client: z.preprocess(
+				asString,
+				z
+					.string()
+					.min(1, 'Cliente é obrigatório')
+					.min(2, 'Cliente deve ter no mínimo 2 caracteres')
+					.max(100, 'Cliente deve ter no máximo 100 caracteres')
+			),
+			startDate: z.preprocess(
+				asString,
+				z.string().min(1, 'Data de início é obrigatória')
+			),
+			endDate: z.preprocess(
+				asString,
+				z.string().min(1, 'Data de finalização é obrigatória')
+			)
 		})
 		.superRefine((data, ctx) => {
 			if (!data.startDate || !data.endDate) {return}

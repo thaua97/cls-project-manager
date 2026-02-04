@@ -1,5 +1,5 @@
 <template>
-  <UApp class="antialiased">
+  <UApp :locale="uiLocale" class="antialiased box-content h-screen w-screen">
     <NuxtRouteAnnouncer />
     <NuxtLayout name="default">
       <NuxtPage />
@@ -15,5 +15,6 @@
   </UApp>
 </template>
 <script lang="ts" setup>
+const uiLocale = useUiLocale();
 const dialog = useConfirmationDialog();
 </script>

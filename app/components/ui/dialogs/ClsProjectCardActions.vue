@@ -10,8 +10,9 @@
     }"
   >
     <UButton
-      size="xl"
-      class="rounded-full text-black"
+      size="md"
+      data-testid="project-actions-button"
+      class="rounded-full text-primary-500"
       icon="i-lucide-ellipsis"
       color="neutral"
       variant="outline"
@@ -35,7 +36,7 @@ const items = ref<DropdownMenuItem[]>([
     },
   },
   {
-    label: "Remove",
+    label: "Remover",
     icon: "i-lucide-trash",
     onSelect: () => {
       emit("remove");

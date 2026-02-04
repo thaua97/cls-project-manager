@@ -1,8 +1,9 @@
 <template>
-  <div class="flex justify-between items-center gap-4">
+  <div class="flex flex-col justify-between items-center md:flex-row gap-4">
     <UFormField class="w-full" label="Data de início">
       <UInputDate
         class="w-full"
+        data-testid="project-start-date"
         ref="inputStartDate"
         v-model="modelInitialDate"
         format="DD-MM-YYYY"
@@ -33,9 +34,11 @@
     <UFormField class="w-full" label="Data de término">
       <UInputDate
         class="w-full"
+        data-testid="project-end-date"
         ref="inputEndDate"
         v-model="modelEndDate"
         format="DD-MM-YYYY"
+        :min-value="modelInitialDate"
       >
         <template #trailing>
           <UPopover :reference="inputEndDate?.inputsRef[3]?.$el">
@@ -53,6 +56,7 @@
                 v-model="modelEndDate"
                 class="p-2"
                 format="DD-MM-YYYY"
+                :min-value="modelInitialDate"
               />
             </template>
           </UPopover>
@@ -81,10 +85,19 @@ const { parseCalendarDate } = useCalendarDate();
 const modelInitialDate = shallowRef(parseCalendarDate(props.startDate));
 const modelEndDate = shallowRef(parseCalendarDate(props.endDate));
 
+const ensureEndDateIsNotBeforeStartDate = () => {
+  const start = modelInitialDate.value?.toString();
+  const end = modelEndDate.value?.toString();
+  if (start && end && end < start) {
+    modelEndDate.value = parseCalendarDate(start);
+  }
+};
+
 watch(
   () => props.startDate,
   (value) => {
     modelInitialDate.value = parseCalendarDate(value);
+    ensureEndDateIsNotBeforeStartDate();
   },
 );
 
@@ -92,6 +105,7 @@ watch(
   () => props.endDate,
   (value) => {
     modelEndDate.value = parseCalendarDate(value);
+    ensureEndDateIsNotBeforeStartDate();
   },
 );
 
@@ -99,6 +113,7 @@ watch(
   modelInitialDate,
   (value) => {
     emit("update:startDate", value.toString());
+    ensureEndDateIsNotBeforeStartDate();
   },
   { deep: true },
 );
@@ -106,6 +121,13 @@ watch(
 watch(
   modelEndDate,
   (value) => {
+    const start = modelInitialDate.value?.toString();
+    const end = value?.toString();
+    if (start && end && end < start) {
+      modelEndDate.value = parseCalendarDate(start);
+      return;
+    }
+
     emit("update:endDate", value.toString());
   },
   { deep: true },

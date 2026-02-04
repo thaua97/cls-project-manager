@@ -53,6 +53,9 @@ export const projectActions = {
 	},
 
 	async fetchProjects(this: ProjectState) {
+		const token = this.fetchToken + 1
+		this.fetchToken = token
+
 		this.isLoading = true
 		this.error = null
 
@@ -74,6 +77,10 @@ export const projectActions = {
 				...(query ? { query } : {})
 			})
 
+			if (token !== this.fetchToken) {
+				return
+			}
+
 			if (!result.success) {
 				this.error = result.error
 				return
@@ -81,10 +88,14 @@ export const projectActions = {
 
 			this.projects = result.projects as unknown as Project[]
 		} catch (error) {
-			this.error = 'Erro ao carregar projetos'
+			if (token === this.fetchToken) {
+				this.error = 'Erro ao carregar projetos'
+			}
 			console.error('Error fetching projects:', error)
 		} finally {
-			this.isLoading = false
+			if (token === this.fetchToken) {
+				this.isLoading = false
+			}
 		}
 	},
 

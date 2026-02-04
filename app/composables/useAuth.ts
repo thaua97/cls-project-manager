@@ -4,11 +4,38 @@ import { useAuthStore } from '../stores/auth'
 export const useAuth = () => {
 	const store = useAuthStore()
 	const api = useClsPmApi()
+	const canUseCredentials = useState<boolean>('auth:can-use-credentials', () => false)
+	const isCheckingHealth = useState<boolean>('auth:is-checking-health', () => false)
 
 	const isAuthenticated = computed(() => store.isAuthenticated)
 	const isGuest = computed(() => store.isGuest)
 	const token = computed(() => store.token)
 	const userId = computed(() => store.userId)
+	const sessionType = computed(() => {
+		if (store.isGuest) {
+			return 'guest' as const
+		}
+		if (store.token) {
+			return 'user' as const
+		}
+		return 'anonymous' as const
+	})
+
+	const checkHealth = async () => {
+		if (typeof window === 'undefined') {
+			return
+		}
+
+		isCheckingHealth.value = true
+		try {
+			const response = await api.health()
+			canUseCredentials.value = response?.status === 'ok'
+		} catch {
+			canUseCredentials.value = false
+		} finally {
+			isCheckingHealth.value = false
+		}
+	}
 
 	const login = async (payload: LoginRequest) => {
 		try {
@@ -52,8 +79,12 @@ export const useAuth = () => {
 	return {
 		isAuthenticated,
 		isGuest,
+		sessionType,
 		token,
 		userId,
+		canUseCredentials,
+		isCheckingHealth,
+		checkHealth,
 		login,
 		register,
 		loginAsGuest,

@@ -1,6 +1,8 @@
 <template>
   <article
-    class="lg:h-[430px] lg:w-[300px] sm:w-full bg-white rounded-2xl shadow-xl"
+    data-testid="project-card"
+    :data-project-id="project.id"
+    class="lg:h-[430px] lg:w-[300px] sm:w-full bg-white rounded-2xl border border-gray-200"
   >
     <figure class="relative lg:w-[300px] sm:w-full h-[230px]">
       <img
@@ -9,16 +11,21 @@
         :alt="project.name"
       />
       <div
-        class="absolute bottom-2 right-2 gap-2 flex items-center justify-center"
+        class="absolute bottom-4 right-4 gap-2 flex items-center justify-center"
       >
-        <div class="cursor-pointer" @click="handleFavorite()">
+        <div
+          class="cursor-pointer flex items-center"
+          data-testid="project-favorite-button"
+          :data-favorited="project.isFavorite ? 'true' : 'false'"
+          @click="handleFavorite()"
+        >
           <Icon
             v-if="project.isFavorite"
             name="ic:baseline-star"
-            size="24"
-            class="text-yellow-500 drop-shadow-star"
+            size="32"
+            class="text-yellow-500"
           />
-          <Icon v-else name="mdi-light:star" size="24" class="text-white" />
+          <Icon v-else name="mdi:star-outline" size="32" class="text-white" />
         </div>
         <ClsProjectCardActions :id="project.id" @remove="handleRemove" />
       </div>
@@ -26,7 +33,22 @@
     <article class="flex flex-col gap-4 p-6">
       <section class="flex flex-col gap-1">
         <h3 class="text-xl font-semibold text-primary-800">
-          {{ project.name }}
+          <template v-if="nameParts?.length">
+            <template v-for="(part, index) in nameParts" :key="index">
+              <span
+                :class="
+                  part.highlight
+                    ? 'bg-yellow-200/70 text-primary-900 rounded px-1'
+                    : ''
+                "
+              >
+                {{ part.text }}
+              </span>
+            </template>
+          </template>
+          <template v-else>
+            {{ project.name }}
+          </template>
         </h3>
         <p class="flex items-center gap-2">
           <b class="font-bold text-smoke">Cliente:</b>
@@ -36,11 +58,15 @@
       <div class="h-px bg-gray-200"></div>
       <section class="flex flex-col gap-4">
         <p class="flex items-center gap-2">
-          <Icon name="mdi-light:calendar" size="24" class="text-gray-400" />
+          <Icon name="ic:baseline-event" size="24" class="text-gray-400" />
           <span>{{ startDate }}</span>
         </p>
         <p class="flex items-center gap-2">
-          <Icon name="mdi-light:calendar" size="24" class="text-gray-400" />
+          <Icon
+            name="ic:baseline-event-available"
+            size="24"
+            class="text-gray-400"
+          />
           <span>{{ endDate }}</span>
         </p>
       </section>
@@ -53,7 +79,15 @@ import dayjs from "dayjs";
 import ptBr from "dayjs/locale/pt-br";
 dayjs.locale(ptBr);
 
-const { project } = defineProps<{ project: Project }>();
+type HighlightPart = {
+  text: string;
+  highlight: boolean;
+};
+
+const { project, nameParts } = defineProps<{
+  project: Project;
+  nameParts?: HighlightPart[];
+}>();
 
 console.log(project);
 

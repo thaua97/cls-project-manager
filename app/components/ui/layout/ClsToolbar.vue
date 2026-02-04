@@ -1,6 +1,6 @@
 <template>
-  <header class="flex justify-between items-center pb-6">
-    <h1 class="text-2xl font-semibold text-primary-800">
+  <header class="flex justify-between items-center pb-6" data-testid="toolbar">
+    <h1 class="text-2xl font-semibold align-middle text-primary-800">
       Projetos
       <span class="text-smoke font-normal text-[17px]">({{ total }})</span>
     </h1>
@@ -8,13 +8,18 @@
     <div class="flex justify-between items-center gap-4">
       <div class="hidden lg:flex items-center gap-2">
         <div class="flex items-center gap-2">
-          <USwitch v-model="modelShowFavoritesOnly" color="warning"></USwitch>
+          <USwitch
+            v-model="modelShowFavoritesOnly"
+            color="warning"
+            data-testid="filter-favorites-toggle"
+          ></USwitch>
           <p class="text-smoke font-normal font-sm">Apenas Favoritos</p>
         </div>
         <USelect
           v-model="modelSortBy"
           :items="ordersType"
           class="w-[200px] bg-white text-primary-800"
+          data-testid="sort-select"
         ></USelect>
       </div>
 
@@ -56,7 +61,12 @@
         </UPopover>
       </div>
 
-      <ClsButton variant="primary" size="sm" @click="onCreate">
+      <ClsButton
+        variant="primary"
+        size="sm"
+        data-testid="create-project-button"
+        @click="onCreate"
+      >
         <Icon name="mdi-light:plus-circle" size="24" />
         Novo Projeto
       </ClsButton>

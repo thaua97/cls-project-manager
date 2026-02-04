@@ -9,7 +9,7 @@
     }"
   >
     <template #content="{ close }">
-      <div class="relative p-8">
+      <div class="relative p-8" data-testid="confirmation-dialog">
         <div
           class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full flex items-center justify-center shadow-lg z-10"
           style="background-color: rgb(99, 102, 241)"
@@ -36,6 +36,7 @@
               variant="outline"
               size="lg"
               class="min-w-[180px]"
+              data-testid="confirmation-cancel-button"
               @click="handleCancel(close)"
             >
               Cancelar
@@ -44,6 +45,7 @@
               variant="primary"
               size="lg"
               class="min-w-[180px]"
+              data-testid="confirmation-confirm-button"
               @click="handleConfirm(close)"
             >
               Confirmar

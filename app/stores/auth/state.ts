@@ -6,6 +6,6 @@ export interface AuthState {
 
 export const initialState = (): AuthState => ({
 	token: null,
-	userId: null,
+	userId: '',
 	isGuest: false
 })

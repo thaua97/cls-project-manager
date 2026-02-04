@@ -5,6 +5,7 @@ export interface ProjectState {
 	hasHydratedSearchHistory: boolean
 	isLoading: boolean
 	error: string | null
+	fetchToken: number
 }
 
 export const initialState = (): ProjectState => ({
@@ -17,5 +18,6 @@ export const initialState = (): ProjectState => ({
 	searchHistory: [],
 	hasHydratedSearchHistory: false,
 	isLoading: false,
-	error: null
+	error: null,
+	fetchToken: 0
 })

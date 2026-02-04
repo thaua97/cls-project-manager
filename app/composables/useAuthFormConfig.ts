@@ -4,6 +4,8 @@ import type { AuthFormField } from '@nuxt/ui'
 import type { AuthModalMode } from './useAuthModal'
 
 export const useAuthFormConfig = (mode: Ref<AuthModalMode>) => {
+	const asString = <T>(value: T) => (typeof value === 'string' ? value : '')
+
 	const title = computed(() => (mode.value === 'login' ? 'Login' : 'Criar conta'))
 	const description = computed(() =>
 		mode.value === 'login'
@@ -14,15 +16,27 @@ export const useAuthFormConfig = (mode: Ref<AuthModalMode>) => {
 	const schema = computed(() => {
 		if (mode.value === 'login') {
 			return z.object({
-				email: z.string().email('Email inválido'),
-				password: z.string().min(1, 'Senha é obrigatória')
+				email: z.preprocess(
+					asString,
+					z.string().min(1, 'Email é obrigatório').email('Email inválido')
+				),
+				password: z.preprocess(
+					asString,
+					z.string().min(1, 'Senha é obrigatória')
+				)
 			})
 		}
 
 		return z.object({
-			name: z.string().min(1, 'Nome é obrigatório'),
-			email: z.string().email('Email inválido'),
-			password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres')
+			name: z.preprocess(asString, z.string().min(1, 'Nome é obrigatório')),
+			email: z.preprocess(
+				asString,
+				z.string().min(1, 'Email é obrigatório').email('Email inválido')
+			),
+			password: z.preprocess(
+				asString,
+				z.string().min(6, 'Senha deve ter no mínimo 6 caracteres')
+			)
 		})
 	})
 
