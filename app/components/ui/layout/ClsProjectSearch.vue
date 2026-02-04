@@ -1,13 +1,21 @@
 <template>
-  <button
-    ref="trigger"
-    type="button"
-    data-testid="project-search-trigger"
-    @click="emit('update:open', true)"
-  >
-    <Icon name="mdi-light:magnify" size="24" class="text-white" />
-  </button>
-
+  <div class="flex items-center gap-2">
+    <button
+      ref="trigger"
+      type="button"
+      data-testid="project-search-trigger"
+      @click="emit('update:open', !open)"
+    >
+      <Icon name="mdi-light:magnify" size="24" class="text-white" />
+    </button>
+    <UButton
+      v-if="searchTerm"
+      class="text-white"
+      variant="ghost"
+      icon="i-lucide-x"
+      @click="emit('update:searchTerm', '')"
+    />
+  </div>
   <Teleport to="body">
     <div v-if="open" class="fixed inset-x-0 top-0 z-50 rounded-3xl">
       <div

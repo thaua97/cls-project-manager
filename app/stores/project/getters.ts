@@ -1,28 +1,26 @@
-import type { Project, SortOption } from '../../../shared/types/project'
+import type { Project, SortOption } from '#shared/types/project'
 import type { ProjectState } from './state'
 
+const sortProjects = (projects: Project[], sortBy: SortOption): Project[] => {
+	const sorted = [...projects]
+
+	switch (sortBy) {
+	case 'alphabetical':
+		return sorted.sort((a, b) => a.name.localeCompare(b.name))
+	case 'startDate':
+		return sorted.sort((a, b) => {
+			return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+		})
+	case 'endDate':
+		return sorted.sort((a, b) => {
+			return new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
+		})
+	default:
+		return sorted
+	}
+}
+
 export const projectGetters = {
-	sortProjects: () => (projects: Project[], sortBy: SortOption): Project[] => {
-		const sorted = [...projects]
-
-		switch (sortBy) {
-		case 'alphabetical':
-			return sorted.sort((a, b) => a.name.localeCompare(b.name))
-		case 'startDate':
-			return sorted.sort((a, b) => {
-				return new Date(b.startDate).getTime() -
-							new Date(a.startDate).getTime()
-			})
-		case 'endDate':
-			return sorted.sort((a, b) => {
-				return new Date(a.endDate).getTime() -
-							new Date(b.endDate).getTime()
-			})
-		default:
-			return sorted
-		}
-	},
-
 	filteredProjects(state: ProjectState): Project[] {
 		let filtered = [...state.projects]
 
@@ -38,7 +36,7 @@ export const projectGetters = {
 			)
 		}
 
-		return (this as any).sortProjects(filtered, state.filters.sortBy)
+		return sortProjects(filtered, state.filters.sortBy)
 	},
 
 	projectCount(): number {

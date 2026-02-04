@@ -1,8 +1,8 @@
-import { useProjectStore } from '../stores/project'
+import { useProjectStore } from '@/stores/project'
 import type {
 	CreateProjectInput,
 	UpdateProjectInput
-} from '../../shared/types/project'
+} from '#shared/types/project'
 import dayjs from 'dayjs'
 
 export const useProject = () => {

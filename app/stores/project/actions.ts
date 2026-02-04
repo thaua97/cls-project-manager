@@ -3,7 +3,7 @@ import type {
 	CreateProjectInput,
 	UpdateProjectInput,
 	SortOption
-} from '../../../shared/types/project'
+} from '#shared/types/project'
 import type { ProjectState } from './state'
 
 const searchHistoryStorageKey = 'cls_pm_project_search_history'
@@ -85,7 +85,7 @@ export const projectActions = {
 				return
 			}
 
-			this.projects = result.projects as unknown as Project[]
+			this.projects = result.projects
 		} catch {
 			if (token === this.fetchToken) {
 				this.error = 'Erro ao carregar projetos'
@@ -94,6 +94,36 @@ export const projectActions = {
 			if (token === this.fetchToken) {
 				this.isLoading = false
 			}
+		}
+	},
+
+	async fetchProjectById(
+		this: ProjectState,
+		id: string
+	): Promise<Project | null> {
+		this.isLoading = true
+		this.error = null
+
+		try {
+			const api = useProjectsApi()
+			const result = await api.getProject(id)
+			if (!result.success) {
+				this.error = result.error
+				return null
+			}
+
+			const index = this.projects.findIndex((p: Project) => p.id === id)
+			if (index === -1) {
+				this.projects.push(result.project)
+			} else {
+				this.projects[index] = result.project
+			}
+			return result.project
+		} catch {
+			this.error = 'Erro ao carregar projeto'
+			return null
+		} finally {
+			this.isLoading = false
 		}
 	},
 
@@ -113,7 +143,7 @@ export const projectActions = {
 				return null
 			}
 
-			const project = result.project as unknown as Project
+			const project = result.project
 			this.projects.push(project)
 			return project
 		} catch {
@@ -146,7 +176,7 @@ export const projectActions = {
 				return false
 			}
 
-			this.projects[index] = result.project as unknown as Project
+			this.projects[index] = result.project
 			return true
 		} catch {
 			this.error = 'Erro ao atualizar projeto'
@@ -198,7 +228,7 @@ export const projectActions = {
 				return false
 			}
 
-			this.projects[index] = result.project as unknown as Project
+			this.projects[index] = result.project
 			return true
 		} catch {
 			this.error = 'Erro ao favoritar projeto'
@@ -225,7 +255,7 @@ export const projectActions = {
 
 			const index = this.projects.findIndex((p: Project) => p.id === id)
 			if (index !== -1) {
-				this.projects[index] = result.project as unknown as Project
+				this.projects[index] = result.project
 			}
 			return true
 		} catch {

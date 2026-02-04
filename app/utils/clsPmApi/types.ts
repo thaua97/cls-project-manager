@@ -62,6 +62,7 @@ export interface CreateProjectResponse {
 export interface UpdateProjectRequest {
 	name?: string
 	client?: string | null
+	backgroundUrl?: string
 	startDate?: string
 	endDate?: string
 	isFavorite?: boolean

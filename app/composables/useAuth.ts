@@ -1,5 +1,5 @@
-import type { LoginRequest, RegisterUserRequest } from '../utils/clsPmApi/types'
-import { useAuthStore } from '../stores/auth'
+import type { LoginRequest, RegisterUserRequest } from '@/utils/clsPmApi/types'
+import { useAuthStore } from '@/stores/auth'
 import { useToast } from '#ui/composables/useToast'
 
 export const useAuth = () => {

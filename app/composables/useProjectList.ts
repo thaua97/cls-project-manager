@@ -1,4 +1,4 @@
-import { useProjectStore } from '../stores/project'
+import { useProjectStore } from '@/stores/project'
 
 export const useProjectList = () => {
 	const store = useProjectStore()
@@ -12,6 +12,10 @@ export const useProjectList = () => {
 
 	const fetchProjects = async () => {
 		await store.fetchProjects()
+	}
+
+	const fetchProjectById = async (id: string) => {
+		await store.fetchProjectById(id)
 	}
 
 	const getProjectById = (id: string) => {
@@ -30,6 +34,7 @@ export const useProjectList = () => {
 		isLoading,
 		error,
 		fetchProjects,
+		fetchProjectById,
 		getProjectById,
 		clearError
 	}

@@ -3,7 +3,7 @@ import type { Project } from '#shared/types/project'
 
 import Fuse from 'fuse.js'
 
-import { useProjectStore } from '../stores/project'
+import { useProjectStore } from '@/stores/project'
 
 type ProjectSearchItem = {
 	label: string

@@ -1,4 +1,4 @@
-import { useProjectStore } from '../stores/project'
+import { useProjectStore } from '@/stores/project'
 import type { SortOption } from '#shared/types/project'
 
 export const useProjectFilters = () => {

@@ -67,7 +67,10 @@
         </p>
       </div>
       <UFormField v-if="!isGuest" label="Capa do projeto">
-        <ClsUploadFile v-model="backgroundFile" />
+        <ClsUploadFile
+          v-model:file="backgroundFile"
+          v-model:url="backgroundUrl"
+        />
       </UFormField>
       <UAlert
         v-else
@@ -131,6 +134,11 @@ const startDate = computed({
 const endDate = computed({
   get: () => props.modelValue.endDate,
   set: (value) => updateModel({ endDate: value }),
+});
+
+const backgroundUrl = computed({
+  get: () => props.modelValue.backgroundUrl,
+  set: (value) => updateModel({ backgroundUrl: value }),
 });
 
 const errors = computed(() => props.errors);

@@ -111,8 +111,12 @@ watch(
   { immediate: true },
 );
 
-const onSubmit = async (payload: any) => {
-  const data = payload?.data as Record<string, string>;
+type AuthFormPayload = {
+  data?: Record<string, unknown>;
+};
+
+const onSubmit = async (payload: AuthFormPayload) => {
+  const data = payload.data ?? {};
 
   if (mode.value === "login") {
     const result = await auth.login({

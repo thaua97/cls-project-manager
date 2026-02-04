@@ -16,19 +16,20 @@
 type ValidationErrors = Partial<Record<keyof CreateProjectInput, string>>;
 
 const { id } = useRoute().params as { id: string };
-const { getProjectById, fetchProjects } = useProjectList();
+const { getProjectById, fetchProjectById } = useProjectList();
 const { updateProject } = useProject();
 const { validateProject, hasErrors } = useProjectValidation();
 
 const isSubmitting = ref(false);
 const errors = ref<ValidationErrors>({});
-const { pending: isLoadingProject, error: loadError } = useAsyncData(
+useAsyncData(
   () => `project:edit:${id}`,
   async () => {
     const existing = getProjectById(id);
-    if (!existing) {
-      await fetchProjects();
+    if (existing) {
+      return true;
     }
+    await fetchProjectById(id);
     return true;
   },
 );

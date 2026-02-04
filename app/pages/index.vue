@@ -42,6 +42,24 @@ const { sortBy, showFavoritesOnly } = useProjectFilters();
 const projectSearch = useProjectSearch();
 const total = computed(() => projects.value.length);
 
+useAsyncData(
+  "projects:index",
+  async () => {
+    if (!auth.isAuthenticated.value) {
+      return null;
+    }
+    await fetchProjects();
+    return true;
+  },
+  {
+    watch: [
+      () => auth.isAuthenticated.value,
+      () => sortBy.value,
+      () => showFavoritesOnly.value,
+    ],
+  },
+);
+
 const hasEverHadProjects = ref(false);
 watch(
   totalProjectCount,
@@ -55,16 +73,6 @@ watch(
 
 const shouldShowToolbar = computed(
   () => totalProjectCount.value > 0 || hasEverHadProjects.value,
-);
-
-watch(
-  () => auth.isAuthenticated.value,
-  (isAuth) => {
-    if (isAuth) {
-      fetchProjects();
-    }
-  },
-  { immediate: true },
 );
 
 const onCreate = () => {
