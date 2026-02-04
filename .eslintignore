@@ -2,3 +2,5 @@
 node_modules
 tsconfig.json
 nuxt.config.ts
+cypress.config.ts
+cypress/

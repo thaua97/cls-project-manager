@@ -1,0 +1,53 @@
+{
+	"validProject": {
+		"name": "Projeto de Teste",
+		"client": "Cliente Teste",
+		"startDate": "2025-01-01",
+		"endDate": "2025-12-31"
+	},
+	"projectList": [
+		{
+			"id": "project-1",
+			"name": "Projeto Alpha",
+			"client": "Cliente A",
+			"startDate": "2025-01-01",
+			"endDate": "2025-06-30",
+			"backgroundUrl": null,
+			"userId": "user-1",
+			"status": "not_started",
+			"isFavorite": false,
+			"createdAt": "2025-01-01T00:00:00.000Z",
+			"updatedAt": "2025-01-01T00:00:00.000Z"
+		},
+		{
+			"id": "project-2",
+			"name": "Projeto Beta",
+			"client": "Cliente B",
+			"startDate": "2025-02-01",
+			"endDate": "2025-07-31",
+			"backgroundUrl": null,
+			"userId": "user-1",
+			"status": "in_progress",
+			"isFavorite": true,
+			"createdAt": "2025-02-01T00:00:00.000Z",
+			"updatedAt": "2025-02-01T00:00:00.000Z"
+		},
+		{
+			"id": "project-3",
+			"name": "Projeto Gamma",
+			"client": "Cliente C",
+			"startDate": "2025-03-01",
+			"endDate": "2025-08-31",
+			"backgroundUrl": null,
+			"userId": "user-1",
+			"status": "completed",
+			"isFavorite": false,
+			"createdAt": "2025-03-01T00:00:00.000Z",
+			"updatedAt": "2025-03-01T00:00:00.000Z"
+		}
+	],
+	"emptyList": {
+		"total": 0,
+		"projects": []
+	}
+}
